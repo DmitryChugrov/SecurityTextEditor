@@ -27,11 +27,11 @@ public class FileSystemMonitor implements Runnable {
                     try {
                         path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
                     } catch (IOException e) {
-//                        System.err.println("Не удалось зарегистрировать директорию для мониторинга: " + dir);
+                        System.err.println("Не удалось зарегистрировать директорию для мониторинга: " + dir);
                         e.printStackTrace();
                     }
                 } else {
-//                    System.err.println("Директория не существует или не является директорией: " + dir);
+                    System.err.println("Директория не существует или не является директорией: " + dir);
                 }
             }
 
@@ -58,19 +58,19 @@ public class FileSystemMonitor implements Runnable {
 
                         if (file.exists() && !file.isDirectory() && !processedFiles.contains(file.getAbsolutePath())) {
                             if (isImageFile(file)) {
-//                                System.out.println("Найден новый скриншот: " + file.getAbsolutePath());
+                                System.out.println("Найден новый скриншот: " + file.getAbsolutePath());
                                 boolean success = applyBlurToFile(file);
                                 if (success) {
                                     processedFiles.add(file.getAbsolutePath());
                                 } else {
                                     if (!file.delete()) {
-//                                        System.err.println("Не удалось удалить файл после неудачных попыток: " + file.getAbsolutePath());
+                                        System.err.println("Не удалось удалить файл после неудачных попыток: " + file.getAbsolutePath());
                                     }
                                 }
                             } else if (isScreenRecordingFile(file)) {
                                 JOptionPane.showMessageDialog(null,"Найден файл записи экрана, удаление: " + file.getAbsolutePath());
                                 if (!file.delete()) {
-//                                    System.err.println("Не удалось удалить файл записи экрана: " + file.getAbsolutePath());
+                                    System.err.println("Не удалось удалить файл записи экрана: " + file.getAbsolutePath());
                                 }
                             }
                         }
@@ -112,14 +112,14 @@ public class FileSystemMonitor implements Runnable {
             try {
                 BufferedImage image = ImageIO.read(file);
                 if (image == null) {
-//                    throw new IOException("ImageIO.read вернул null для файла: " + file.getAbsolutePath());
+                    throw new IOException("ImageIO.read вернул null для файла: " + file.getAbsolutePath());
                 }
                 BufferedImage blurredImage = blurImage(image);
                 ImageIO.write(blurredImage, "png", file);
                 JOptionPane.showMessageDialog(null,"Применено замыливание к: " + file.getAbsolutePath());
                 return true;
             } catch (IOException e) {
-//                System.err.println("Не удалось прочитать файл как изображение: " + file.getAbsolutePath());
+                System.err.println("Не удалось прочитать файл как изображение: " + file.getAbsolutePath());
                 e.printStackTrace();
                 attempt++;
                 try {
@@ -130,7 +130,7 @@ public class FileSystemMonitor implements Runnable {
                 }
             }
         }
-//        System.err.println("Не удалось обработать файл после нескольких попыток: " + file.getAbsolutePath());
+        System.err.println("Не удалось обработать файл после нескольких попыток: " + file.getAbsolutePath());
         return false;
     }
 

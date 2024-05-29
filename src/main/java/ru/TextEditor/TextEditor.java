@@ -192,9 +192,9 @@ public class TextEditor extends JFrame {
     static class SplashScreen extends JFrame {
         public SplashScreen() {
             setUndecorated(true);
-            JLabel splashLabel = new JLabel(new ImageIcon("C:\\Users\\serge\\OneDrive\\Рабочий стол\\IMG_20230121_161208.jpg")); // Укажите путь к вашей картинке
+            JLabel splashLabel = new JLabel(new ImageIcon("Заставка.png")); // Укажите путь к вашей картинке
             getContentPane().add(splashLabel);
-            setSize(600, 400);
+            setSize(500, 400);
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             int x = (screenSize.width - getSize().width) / 2;
             int y = (screenSize.height - getSize().height) / 2;
