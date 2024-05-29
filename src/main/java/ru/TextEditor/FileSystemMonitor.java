@@ -5,8 +5,10 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.RecursiveTask;
 import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class FileSystemMonitor implements Runnable {
     private final Set<String> processedFiles = new HashSet<>();
@@ -25,11 +27,11 @@ public class FileSystemMonitor implements Runnable {
                     try {
                         path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
                     } catch (IOException e) {
-                        System.err.println("Не удалось зарегистрировать директорию для мониторинга: " + dir);
+//                        System.err.println("Не удалось зарегистрировать директорию для мониторинга: " + dir);
                         e.printStackTrace();
                     }
                 } else {
-                    System.err.println("Директория не существует или не является директорией: " + dir);
+//                    System.err.println("Директория не существует или не является директорией: " + dir);
                 }
             }
 
@@ -56,19 +58,19 @@ public class FileSystemMonitor implements Runnable {
 
                         if (file.exists() && !file.isDirectory() && !processedFiles.contains(file.getAbsolutePath())) {
                             if (isImageFile(file)) {
-                                System.out.println("Найден новый скриншот: " + file.getAbsolutePath());
+//                                System.out.println("Найден новый скриншот: " + file.getAbsolutePath());
                                 boolean success = applyBlurToFile(file);
                                 if (success) {
                                     processedFiles.add(file.getAbsolutePath());
                                 } else {
                                     if (!file.delete()) {
-                                        System.err.println("Не удалось удалить файл после неудачных попыток: " + file.getAbsolutePath());
+//                                        System.err.println("Не удалось удалить файл после неудачных попыток: " + file.getAbsolutePath());
                                     }
                                 }
                             } else if (isScreenRecordingFile(file)) {
-                                System.out.println("Найден файл записи экрана, удаление: " + file.getAbsolutePath());
+                                JOptionPane.showMessageDialog(null,"Найден файл записи экрана, удаление: " + file.getAbsolutePath());
                                 if (!file.delete()) {
-                                    System.err.println("Не удалось удалить файл записи экрана: " + file.getAbsolutePath());
+//                                    System.err.println("Не удалось удалить файл записи экрана: " + file.getAbsolutePath());
                                 }
                             }
                         }
@@ -110,14 +112,14 @@ public class FileSystemMonitor implements Runnable {
             try {
                 BufferedImage image = ImageIO.read(file);
                 if (image == null) {
-                    throw new IOException("ImageIO.read вернул null для файла: " + file.getAbsolutePath());
+//                    throw new IOException("ImageIO.read вернул null для файла: " + file.getAbsolutePath());
                 }
                 BufferedImage blurredImage = blurImage(image);
                 ImageIO.write(blurredImage, "png", file);
-                System.out.println("Применено замыливание к: " + file.getAbsolutePath());
+                JOptionPane.showMessageDialog(null,"Применено замыливание к: " + file.getAbsolutePath());
                 return true;
             } catch (IOException e) {
-                System.err.println("Не удалось прочитать файл как изображение: " + file.getAbsolutePath());
+//                System.err.println("Не удалось прочитать файл как изображение: " + file.getAbsolutePath());
                 e.printStackTrace();
                 attempt++;
                 try {
@@ -128,7 +130,7 @@ public class FileSystemMonitor implements Runnable {
                 }
             }
         }
-        System.err.println("Не удалось обработать файл после нескольких попыток: " + file.getAbsolutePath());
+//        System.err.println("Не удалось обработать файл после нескольких попыток: " + file.getAbsolutePath());
         return false;
     }
 
@@ -150,25 +152,49 @@ public class FileSystemMonitor implements Runnable {
     }
 
     private List<String> getAllDirectories() {
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
         List<String> directories = new ArrayList<>();
         File[] roots = File.listRoots();
+        List<RecursiveTask<List<String>>> tasks = new ArrayList<>();
         for (File root : roots) {
-            addAllSubDirectories(root, directories);
+            DirectoryTask task = new DirectoryTask(root);
+            tasks.add(task);
+            forkJoinPool.execute(task);
+        }
+        for (RecursiveTask<List<String>> task : tasks) {
+            directories.addAll(task.join());
         }
         return directories;
     }
 
-    private void addAllSubDirectories(File dir, List<String> directories) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    directories.add(file.getAbsolutePath());
-                    addAllSubDirectories(file, directories);
+    private class DirectoryTask extends RecursiveTask<List<String>> {
+        private final File dir;
+
+        public DirectoryTask(File dir) {
+            this.dir = dir;
+        }
+
+        @Override
+        protected List<String> compute() {
+            List<String> directories = new ArrayList<>();
+            List<DirectoryTask> subTasks = new ArrayList<>();
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        directories.add(file.getAbsolutePath());
+                        DirectoryTask task = new DirectoryTask(file);
+                        task.fork();
+                        subTasks.add(task);
+                    }
+                }
+                for (DirectoryTask task : subTasks) {
+                    directories.addAll(task.join());
                 }
             }
+            return directories;
         }
     }
-
 }
+
 

@@ -28,7 +28,7 @@ public class TextEditor extends JFrame {
         });
 
         textArea = new JTextArea();
-        textArea.setTransferHandler(null); // Disable default copy-paste
+        textArea.setTransferHandler(null);
         JScrollPane scrollPane = new JScrollPane(textArea);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
@@ -67,7 +67,7 @@ public class TextEditor extends JFrame {
         });
         fileMenu.add(exitItem);
 
-        JMenu editMenu = new JMenu("Редактировать");
+        JMenu editMenu = new JMenu("Редактирование");
         menuBar.add(editMenu);
 
         JMenuItem copyItem = new JMenuItem("Копировать");
@@ -97,10 +97,6 @@ public class TextEditor extends JFrame {
         }
         encodingComboBox.setSelectedItem(StandardCharsets.UTF_8.name());
 
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Кодировка:"));
-        panel.add(encodingComboBox);
-        getContentPane().add(panel, BorderLayout.NORTH);
     }
 
     private boolean confirmClose() {
@@ -163,16 +159,56 @@ public class TextEditor extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
+        Thread splashThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
+                SplashScreen splash = new SplashScreen();
+                splash.showSplash();
                 TextEditor textEditor = new TextEditor();
-                textEditor.setVisible(true);
                 Monitor monitor = new Monitor();
                 monitor.start();
+                textEditor.setVisible(true);
+                splash.hideSplash();
             }
         });
+        splashThread.setPriority(Thread.MAX_PRIORITY);
+        splashThread.start();
+
+        try {
+            splashThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                TextEditor textEditor = new TextEditor();
+//                Monitor monitor = new Monitor();
+//                monitor.start();
+//                textEditor.setVisible(true);
+//            }
+//        });
+    }
+    static class SplashScreen extends JFrame {
+        public SplashScreen() {
+            setUndecorated(true);
+            JLabel splashLabel = new JLabel(new ImageIcon("C:\\Users\\serge\\OneDrive\\Рабочий стол\\IMG_20230121_161208.jpg")); // Укажите путь к вашей картинке
+            getContentPane().add(splashLabel);
+            setSize(600, 400);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = (screenSize.width - getSize().width) / 2;
+            int y = (screenSize.height - getSize().height) / 2;
+            setLocation(x, y);
+        }
+
+        public void showSplash() {
+            setVisible(true);
+        }
+
+        public void hideSplash() {
+            setVisible(false);
+            dispose();
+        }
     }
 }
 

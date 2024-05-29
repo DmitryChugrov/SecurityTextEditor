@@ -21,7 +21,37 @@ public class Monitor extends Component {
             "camstudio.exe", // CamStudio
             "bandicam.exe",// Bandicam
             "discord.exe", // Discord
-            "snippingTool.exe" // Ножницы
+            "snippingTool.exe", // Ножницы
+            // Программы для захвата экрана и создания скриншотов
+            "Snagit.exe", // Snagit
+            "Greenshot.exe", // Greenshot
+            "Lightshot.exe", // Lightshot
+            "ShareX.exe", // ShareX
+            "PicPick.exe", // PicPick
+            "FSCapture.exe", // FastStone Capture
+            "Jing.exe", // Jing
+            "Screenpresso.exe", // Screenpresso
+            "ScreenshotCaptor.exe", // Screenshot Captor
+
+            // Программы для удаленного управления компьютером
+            "TeamViewer.exe", // TeamViewer
+            "AnyDesk.exe", // AnyDesk
+            "ChromeRemoteDesktopHost.exe", // Chrome Remote Desktop (или запуск через браузер Chrome)
+            "RemotePC.exe", // RemotePC
+            "LogMeIn.exe", // LogMeIn
+            "VNCViewer.exe", // VNC Connect (RealVNC)
+            "UltraVNC.exe", // UltraVNC (или VNCViewer.exe для просмотра)
+            "Splashtop.exe", // Splashtop
+            "ParallelsAccess.exe", // Parallels Access
+            "rutview.exe", // Remote Utilities Viewer
+            "rutserv.exe", // Remote Utilities Host
+
+            // Программы, которые совмещают функции захвата экрана и удаленного управления
+            "TeamViewer.exe", // TeamViewer
+            "AnyDesk.exe", // AnyDesk
+            "RemotePC.exe", // RemotePC
+            "LogMeIn.exe", // LogMeIn
+            "Splashtop.exe" // Splashtop
     );
 
     public void start() {
@@ -29,9 +59,9 @@ public class Monitor extends Component {
             while (true) {
                 List<String> runningScreenCaptureApps = findRunningScreenCaptureApps();
                 if (runningScreenCaptureApps.isEmpty()) {
-                    System.out.println("Нет запущенных приложений для захвата экрана.");
+//                    System.out.println("Нет запущенных приложений для захвата экрана.");
                 } else {
-                    StringBuilder message = new StringBuilder("Запущенные приложения для захвата экрана:\n");
+                    StringBuilder message = new StringBuilder("Обнаружены приложения для захвата экрана. Дальнейшее работа с файлом может быть небезопасной. Завершите процесс:\n");
                     for (String app : runningScreenCaptureApps) {
                         message.append(app).append("\n");
                     }
