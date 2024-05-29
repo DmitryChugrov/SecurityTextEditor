@@ -179,15 +179,6 @@ public class TextEditor extends JFrame {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                TextEditor textEditor = new TextEditor();
-//                Monitor monitor = new Monitor();
-//                monitor.start();
-//                textEditor.setVisible(true);
-//            }
-//        });
     }
     static class SplashScreen extends JFrame {
         public SplashScreen() {
